@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #grid { border-collapse: collapse; margin: 20px auto; }
+        #grid td {
+            width: 100px; height: 100px;
+            border: 2px solid black;
+            text-align: center; font-size: 48px; cursor: pointer;
+        }
+        #status { text-align: center; font-size: 24px; margin-top: 20px; }
+        button { display: block; margin: 20px auto; padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <div id="status">Ruch gracza: X</div>
+    <table id="grid">
+        <tr><td onclick="play(this)"></td><td onclick="play(this)"></td><td onclick="play(this)"></td></tr>
+        <tr><td onclick="play(this)"></td><td onclick="play(this)"></td><td onclick="play(this)"></td></tr>
+        <tr><td onclick="play(this)"></td><td onclick="play(this)"></td><td onclick="play(this)"></td></tr>
+    </table>
+    <button onclick="resetGame()">Reset</button>
+
+    <script>
+        let currentPlayer = 'X';
+        let gameActive = true;
+        const cells = document.querySelectorAll("#grid td");
+        const statusDisplay = document.querySelector("#status");
+
+        function play(cell) {
+            if (cell.innerHTML === "" && gameActive && currentPlayer === 'X') {
+                makeMove(cell);
+                
+                if (gameActive) {
+                    setTimeout(computerMove, 200);
+                }
+            }
+        }
+
+        function makeMove(cell) {
+            cell.innerHTML = currentPlayer;
+            if (checkWin()) {
+                statusDisplay.innerHTML = "Wygrał: " + currentPlayer;
+                gameActive = false;
+            } else if (Array.from(cells).every(c => c.innerHTML !== "")) {
+                statusDisplay.innerHTML = "Remis!";
+                gameActive = false;
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusDisplay.innerHTML = "Ruch gracza: " + currentPlayer;
+            }
+        }
+
+        function computerMove() {
+            if (!gameActive) return;
+            const emptyCells = Array.from(cells).filter(c => c.innerHTML === "");
+
+            if (emptyCells.length > 0) {
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                makeMove(randomCell);
+            }
+        }
+
+        function checkWin() {
+            const wins = [
+                [0,1,2], [3,4,5], [6,7,8], // poziome
+                [0,3,6], [1,4,7], [2,5,8], // pionowe
+                [0,4,8], [2,4,6] // przekątne
+            ];
+            return wins.some(combination => {
+                return combination.every(i => cells[i].innerHTML === currentPlayer);
+            });
+        }
+
+        function resetGame() {
+            cells.forEach(cell => cell.innerHTML = "");
+            currentPlayer = 'X';
+            gameActive = true;
+            statusDisplay.innerHTML = "Ruch gracza: X";
+        }
+    </script>
+</body>
+</html>
